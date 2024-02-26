@@ -1,0 +1,58 @@
+diff --git a/node_modules/@smogon/calc/dist/calc.js b/node_modules/@smogon/calc/dist/calc.js
+index d68b90c..7704117 100644
+--- a/node_modules/@smogon/calc/dist/calc.js
++++ b/node_modules/@smogon/calc/dist/calc.js
+@@ -20,7 +20,7 @@ var MECHANICS = [
+     gen789_1.calculateSMSSSV,
+ ];
+ function calculate(gen, attacker, defender, move, field) {
+-    return MECHANICS[gen.num](gen, attacker.clone(), defender.clone(), move.clone(), field ? field.clone() : new field_1.Field());
++    return MECHANICS[gen.num](gen, attacker, defender, move, field ? field : new field_1.Field());
+ }
+ exports.calculate = calculate;
+ //# sourceMappingURL=calc.js.map
+diff --git a/node_modules/@smogon/calc/dist/mechanics/gen12.js b/node_modules/@smogon/calc/dist/mechanics/gen12.js
+index 4b61cef..bb856bc 100644
+--- a/node_modules/@smogon/calc/dist/mechanics/gen12.js
++++ b/node_modules/@smogon/calc/dist/mechanics/gen12.js
+@@ -31,7 +31,9 @@ var result_1 = require("../result");
+ var util_1 = require("./util");
+ function calculateRBYGSC(gen, attacker, defender, move, field) {
+     var _a;
+-    (0, util_1.computeFinalStats)(gen, attacker, defender, field, 'atk', 'def', 'spa', 'spd', 'spe');
++    if(gen.num >1) {
++        (0, util_1.computeFinalStats)(gen, attacker, defender, field, 'atk', 'def', 'spa', 'spd', 'spe');
++    }
+     var desc = {
+         attackerName: attacker.name,
+         moveName: move.name,
+diff --git a/node_modules/@smogon/calc/dist/pokemon.js b/node_modules/@smogon/calc/dist/pokemon.js
+index c43a4df..8fbdca8 100644
+--- a/node_modules/@smogon/calc/dist/pokemon.js
++++ b/node_modules/@smogon/calc/dist/pokemon.js
+@@ -51,7 +51,7 @@ var Pokemon = (function () {
+         this.item = options.item;
+         this.nature = options.nature || 'Serious';
+         this.ivs = Pokemon.withDefault(gen, options.ivs, 31);
+-        this.evs = Pokemon.withDefault(gen, options.evs, gen.num >= 3 ? 0 : 252);
++        this.evs = Pokemon.withDefault(gen, options.evs, gen.num >= 3 ? 0 : 0);
+         this.boosts = Pokemon.withDefault(gen, options.boosts, 0, false);
+         if (this.weightkg === 0 && !this.isDynamaxed && this.species.baseSpecies) {
+             this.weightkg = gen.species.get((0, util_1.toID)(this.species.baseSpecies)).weightkg;
+diff --git a/node_modules/@smogon/calc/dist/stats.js b/node_modules/@smogon/calc/dist/stats.js
+index 26dac62..70937f2 100644
+--- a/node_modules/@smogon/calc/dist/stats.js
++++ b/node_modules/@smogon/calc/dist/stats.js
+@@ -129,10 +129,10 @@ exports.Stats = new ((function () {
+     };
+     class_1.prototype.calcStatRBYFromDV = function (stat, base, dv, level) {
+         if (stat === 'hp') {
+-            return Math.floor((((base + dv) * 2 + 63) * level) / 100) + level + 10;
++            return Math.floor((((base + dv) * 2 ) * level) / 100) + level + 10;
+         }
+         else {
+-            return Math.floor((((base + dv) * 2 + 63) * level) / 100) + 5;
++            return Math.floor((((base + dv) * 2 ) * level) / 100) + 5;
+         }
+     };
+     class_1.prototype.getHiddenPowerIVs = function (gen, hpType) {

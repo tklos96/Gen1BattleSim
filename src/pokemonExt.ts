@@ -12,6 +12,7 @@ export class PokemonExt {
     crtStage: number;
     badgeBoosts: ps.StatID[];
     exp: number;
+    volStatus: string;
     invisible: boolean;
     inTwoTurnMove: boolean;
     moveCarryOver: number;
@@ -43,6 +44,7 @@ export class PokemonExt {
         this.crtStage = 0;
         this.badgeBoosts = options_custom.badgeBoosts || [];
         this.exp = options_custom.exp || 0;
+        this.volStatus = '';
         this.invisible = false;
         this.inTwoTurnMove = false;
         this.moveCarryOver = -1;

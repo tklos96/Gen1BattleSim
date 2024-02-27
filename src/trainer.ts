@@ -8,7 +8,8 @@ export class Trainer {
     team: PokemonExt[];
     fainted: boolean[];
     itemName: string;
-    itemNum: number[]; //per pokemon for Gen 1 enemy trainers
+    itemNum: number;
+    itemNumPerPok: number[]; //per pokemon for Gen 1 enemy trainers
     currentPokemon: number;
 
     constructor(
@@ -21,10 +22,11 @@ export class Trainer {
         this.name = name;
         this.team = team;
         this.itemName = itemName || '';
-        this.itemNum = [];
-        if(gen.num==1 && itemNum != undefined) {
+        this.itemNum = itemNum || 0;
+        this.itemNumPerPok = [];
+        if(gen.num==1) {
             for(let i=0; i<this.team.length; i++) {
-                this.itemNum.push(itemNum);
+                this.itemNumPerPok.push(this.itemNum);
             }
         }
         this.currentPokemon = 0;

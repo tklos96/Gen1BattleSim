@@ -9,7 +9,7 @@ const p1 = new PokemonExt(gen,
                         'Jolteon',
                         {'level':5},
                         {'badgeBoosts':['atk'],
-                         'moves':[move, move2],
+                         'moves':[new ps.Move(gen,'Quick Attack'), new ps.Move(gen,'Thunder Shock')],
                          'rawStatsOverride':{hp:23,atk:130,def:12,spa:17,spd:17,spe:19 }
                          }
                        );

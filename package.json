@@ -14,16 +14,14 @@
     "posttest": "npm run lint",
     "postinstall": "patch-package"
   },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
+  "author": "tklos45",
+  "license": "",
+  "dependencies": {
     "@smogon/calc": "^0.9.0",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
     "eslint": "^8.57.0",
-    "typescript": "^5.3.3"
-  },
-  "dependencies": {
+    "typescript": "^5.3.3",
     "patch-package": "^8.0.0"
   }
 }

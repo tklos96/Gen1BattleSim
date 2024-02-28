@@ -1,11 +1,13 @@
 import * as ps from '@smogon/calc';
 import * as psI from '@smogon/calc/dist/data/interface';
 
+import {MoveExt} from './moveExt';
+
 const nonHPStats = ['atk', 'def', 'spa', 'spd', 'spe'] as psI.StatID[];
 
 export class PokemonExt {
     data: ps.Pokemon;
-    moves: ps.Move[];
+    moves: MoveExt[];
     coreStatStage: psI.StatsTable;
     accStage: number;
     evaStage: number;
@@ -30,7 +32,7 @@ export class PokemonExt {
             boosts?: Partial<psI.StatsTable> & {spc?: number};
         } = {},
         optionsExt: {
-            moves?: ps.Move[],
+            moves?: MoveExt[],
             badgeBoosts?: ps.StatID[],
             rawStatsOverride?: psI.StatsTable
         } = {}
@@ -76,16 +78,29 @@ export class PokemonExt {
         }
     }
 
-    // Get a move from its index
-    getMove(num: number, crit = false) {
+    // Get a move from its index, including whether it crits
+    getMoveObj(num: number, randByte = 255) {
         if(num>=this.moves.length) num = 0;
-        this.moves[num].isCrit = crit;
+
+        const critRate = this.moves[num].highCritRatio ? this.highCrit : this.baseCrit;
+        this.moves[num].isCrit = (randByte < critRate);
         return this.moves[num];
     }
 
-    // Take damage or heal
-    changeHP(delta: number) {
-        const newHP = Math.max(this.data.originalCurHP + delta, 0);
+    // Test if a move will succeed or be stopped by status
+    attemptMove(num: number) : number {
+        if(this.data.hasStatus('par')) return 0;
+        return 1;
+    }
+
+    // Returns speed, +1000 if the move has priority
+    getPriority(moveNum = 0) : number {
+        return this.data.stats['spe'] + 1000*this.moves[moveNum].priority
+    }
+
+    // Take damage
+    takeDmg(dmg: number) {
+        const newHP = Math.max(this.data.originalCurHP - dmg, 0);
         this.data.originalCurHP = Math.min(newHP, this.data.rawStats['hp']);
     }
 

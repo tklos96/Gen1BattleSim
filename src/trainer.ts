@@ -11,6 +11,7 @@ export class Trainer {
     itemNum: number;
     itemNumPerPok: number[]; //per pokemon for Gen 1 enemy trainers
     currentPokemon: number;
+    isEnemyTrainer = false;
 
     constructor(
         gen: psI.Generation,
@@ -55,7 +56,7 @@ export class Trainer {
         return true;
     }
 
-    getCurrentPokemon() : PokemonExt {
+    getActiveMon() : PokemonExt {
         return this.team[this.currentPokemon];
     }
 

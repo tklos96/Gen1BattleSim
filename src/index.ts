@@ -5,31 +5,64 @@ import {TrainerData} from './data/trainers';
 import {Battle} from './battle';
 import {MoveExt} from './moveExt';
 
+const numToSim = 10000;
+const numToLog = 10; // Write full log of the first n battles
+
+// Define Player Move Selection
+class PlayerTrainer extends Trainer {
+    usedSandAttack = false;
+
+    reset() {
+        super.reset();
+        this.usedSandAttack = false;
+    }
+    
+    chooseMove(enemy: Trainer) {
+        if(!this.usedSandAttack) {
+            this.usedSandAttack = true;
+            return 3;
+        }
+        if(this.getActiveMon().coreStatStage['atk'] < 0) return 0;
+        return 2;
+    }
+}
+
+
+// Initialize Player Team
 const gen = ps.Generations.get(1);
 const p1 = new PokemonExt(gen,
-                          'Jolteon',
-                          {level:5
+                          'Vaporeon',
+                          {level:25
                            },
                           {badgeBoosts:['atk'],
-                           moves:[new MoveExt(gen,'Thunder Shock',{'highCritRatio':false}),
-                                  new MoveExt(gen,'Quick Attack')],
-                           rawStatsOverride:{hp:23,atk:13,def:12,spa:17,spd:17,spe:10 }
-                           //rawStatsOverride:{hp:23,atk:13,def:12,spa:17,spd:17,spe:19 }
+                           moves:[new MoveExt(gen,'Bubble Beam'),
+                                  new MoveExt(gen,'Water Gun'),
+                                  new MoveExt(gen,'Body Slam',{secChance:0.3,status:'par'}),
+                                  new MoveExt(gen,'Sand Attack',{secChance:1,stat:'acc',statStage:-1})],
+                           rawStatsOverride:{hp:110,atk:48,def:46,spa:70,spd:70,spe:48 }
                            }
                           );
 
-const player = new Trainer(gen,'Player',[p1]);
-const enemy = TrainerData.LabRival;
+const player = new PlayerTrainer(gen,'Player',[p1]);
 
+// Pick Enemy Trainer
+const enemy = TrainerData.LtSurge;
+
+
+// Simulate Battles
 const b = new Battle(player, enemy);
-for(let battleNum=0; battleNum <1000; ++battleNum) {
-    b.doBattleFromScratch(battleNum < 10);
+for(let battleNum=0; battleNum < numToSim; ++battleNum) {
+    b.doBattleFromScratch(battleNum < numToLog);
 }
 
+
+// Log simulation results
 console.log();
 console.log(`Done with simulations.`);
 console.log(`Outcomes (wins, losses, ties): `);
 console.log(b.outcomes);
+console.log(`Turn Ended Histogram: `);
+console.log(b.turnEnded);
 const CoS = 100 * b.outcomes[0] / (b.outcomes[0]+b.outcomes[1]+b.outcomes[2]);
 console.log(`Chance of success: ${CoS}%`);
 

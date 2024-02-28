@@ -4,6 +4,8 @@ import * as psI from '@smogon/calc/dist/data/interface';
 import {MoveExt} from './moveExt';
 
 const nonHPStats = ['atk', 'def', 'spa', 'spd', 'spe'] as psI.StatID[];
+type StatIDExt = psI.StatID | 'acc' | 'eva';
+const stageMods = [.25,.28,.33,.4,.5,.66,1,1.5,2,3,4,5,6];
 
 export class PokemonExt {
     data: ps.Pokemon;
@@ -39,7 +41,7 @@ export class PokemonExt {
     ) {
         this.data = new ps.Pokemon(gen, name, options);
         this.moves = optionsExt.moves || [];
-        this.coreStatStage = {hp:0, atk:0,def:0,spa:0,spd:0,spe:0 };
+        this.coreStatStage = {hp:0,atk:0,def:0,spa:0,spd:0,spe:0 };
         this.accStage = 0;
         this.evaStage = 0;
         this.badgeBoosts = optionsExt.badgeBoosts || [];
@@ -69,11 +71,38 @@ export class PokemonExt {
         this.recalculateStats();
     }
 
+    // Apply a new stat stage modifier
+    applyStatModifier(stat: StatIDExt | '', stage: number) {
+        if(stat=='') return;
+
+        // Do nothing if stat can't be raised/lowered more
+        let currentStage: number;
+        if(stat=='acc') currentStage = this.accStage;
+        else if (stat=='eva') currentStage = this.evaStage;
+        else currentStage = this.coreStatStage[stat as psI.StatID];
+        if( (stage >=0 && currentStage >=6) || (stage <=0 && currentStage <= -6)) return;
+
+        // Update the stage modifier and calculate that specific stat
+        if(stat=='acc') this.accStage += stage;
+        else if(stat=='eva') this.evaStage += stage;
+        else {
+            const newStage = Math.max(-6, Math.min(6,currentStage + stage));
+            this.coreStatStage[stat as psI.StatID] = newStage; 
+            this.calcRawStat(stat);
+        }
+
+        // Badge boost all stats
+        for(const s of nonHPStats) {
+            this.applyBadgeBoost(s);
+        }
+    }
+
     // Use to recalculate stats (from raw stats with badge boosts applied once)
     recalculateStats() {
         this.data.stats['hp'] = this.data.rawStats['hp'];
+
         for(const stat of nonHPStats) {
-            this.data.stats[stat] = this.data.rawStats[stat];
+            this.calcRawStat(stat);
             this.applyBadgeBoost(stat);
         }
     }
@@ -107,6 +136,11 @@ export class PokemonExt {
     // If the Pokemon is at 0 HP
     fainted() : boolean {
         return this.data.originalCurHP == 0;
+    }
+
+    private calcRawStat(stat: psI.StatID) {
+        const mult = stageMods[6+this.coreStatStage[stat]];
+        this.data.stats[stat] = Math.floor(mult * this.data.rawStats[stat]);
     }
 
     // Apply the 12.5% badge boost to specified stat

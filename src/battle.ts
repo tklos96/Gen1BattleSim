@@ -11,6 +11,7 @@ export class Battle {
     logOutput = false;
     battleNum: number;
     outcomes: number[];
+    turnEnded: number[];
 
     constructor(player: Trainer,
                 enemy: Trainer
@@ -19,6 +20,7 @@ export class Battle {
         this.enemy = enemy;
         this.battleNum = 0;
         this.outcomes = [0,0,0];
+        this.turnEnded = [];
     }
 
     doBattleFromScratch(logOutput = false) {
@@ -42,6 +44,9 @@ export class Battle {
         if( turn==200 ) this.outcomes[2]++;
         else if( this.player.defeated() ) this.outcomes[1]++;
         else this.outcomes[0]++;
+        // Update turnEnded histogram
+        while( turn >= this.turnEnded.length ) this.turnEnded.push(0);
+        this.turnEnded[ turn ]++;
 
         if(this.logOutput) {
             if( turn==200 ) {
@@ -49,11 +54,11 @@ export class Battle {
             }
             else if( this.player.defeated() ) {
                 console.log(`LOSS: Player lost to enemy Pokemon: ${this.enemy.getActiveMon().data.name}`);
-                console.log(`Battle ended on Turn ${turn+1}`);
+                console.log(`Battle ended on Turn ${turn}`);
             }
             else {
                 console.log(`WIN: Player won!`);
-                console.log(`Battle ended on Turn ${turn+1}`);
+                console.log(`Battle ended on Turn ${turn}`);
             }
         }
 
@@ -62,8 +67,8 @@ export class Battle {
 
     private doTurn() {
         // Player and enemy pick moves
-        const pMove = this.player.chooseMove();
-        const eMove = this.enemy.chooseMove();
+        const pMove = this.player.chooseMove(this.enemy);
+        const eMove = this.enemy.chooseMove(this.player);
 
         // Choose who goes first
         const pPriority = this.player.getActiveMon().getPriority(pMove);
@@ -92,8 +97,11 @@ export class Battle {
 
     // Do a move, including checking for status, miss, damage, etc
     private executeMove(attacker: Trainer, defender: Trainer, move: number) {
-        if(attacker.isAITrainer) {
-            // check for item use
+        if( attacker.useItem() ) {
+            if(this.logOutput) {
+                console.log(` ${attacker.name} used item.`);
+                return;
+            }
         }
 
         const attMon = attacker.getActiveMon();
@@ -102,8 +110,18 @@ export class Battle {
         // Check if the move will succeed, based on status
         const code = attMon.attemptMove(move);
         if(code > 0) {
-            const dmg = this.getDamageRoll(attMon, defMon, move);
-            defMon.takeDmg(dmg);
+            const hit = this.getAccRoll(attMon, defMon, move);
+            if(hit) {
+                const dmg = this.getDamageRoll(attMon, defMon, move);
+                defMon.takeDmg(dmg);
+
+                this.applySecondaryEffect(attMon, defMon, move);
+            } else {
+                if(this.logOutput) {
+                    console.log(` ${attMon.data.name} missed ${attMon.moves[move].name}.`);
+                }
+            }
+
         }
         else if (code==0) {
             //failed due to status
@@ -114,35 +132,62 @@ export class Battle {
         }
     }
 
-    private getDamageRoll(attMon: PokemonExt, defMon: PokemonExt, move: number) {
+    private getAccRoll(attMon: PokemonExt, defMon: PokemonExt, move: number) : boolean {
+        const acc = Math.floor( Math.floor(attMon.moves[move].acc * 255) *
+                                evaModifiers[-1*attMon.accStage] *
+                                evaModifiers[defMon.evaStage] );
+        // TODO modify hit for Swift and other special cases
+        // https://www.youtube.com/watch?v=hyCQf8teE7w&ab_channel=KangaskDan
+
+        return getRandomByte() < acc;
+    }
+
+    private getDamageRoll(attMon: PokemonExt, defMon: PokemonExt, move: number) : number {
         // Get the move object. This includes a check for critical hit.
         const moveObj = attMon.getMoveObj(move, getRandomByte() );
         // TODO if guard spec, no crit
 
-        const acc = Math.floor( Math.floor(moveObj.acc * 255) *
-                                evaModifiers[-1*attMon.accStage] *
-                                evaModifiers[defMon.evaStage] );
-        const hit = getRandomByte() < acc;
-        // TODO modify hit for Swift and other special cases
-        // https://www.youtube.com/watch?v=hyCQf8teE7w&ab_channel=KangaskDan
+        let dmg: number;
+        if (moveObj.category == 'Status') dmg = 0;
+        else {
+            const result = ps.calculate(attMon.data.gen, attMon.data, defMon.data, moveObj);
+            dmg = getRandomOfList(result.damage as number[]);
+        }
 
-        if(hit) {
-            if(this.logOutput) {
-                const critString = moveObj.isCrit ? '. Critical hit!' : '.';
-                console.log(` ${acc} used ${moveObj.name}${critString}`);
-                //console.log(` ${attMon.data.name} used ${moveObj.name}${critString}`);
+
+        if(this.logOutput) {
+            const critString = moveObj.isCrit ? '. Critical hit!' : '.';
+            if(dmg>0) console.log(` ${attMon.data.name} used ${moveObj.name} for ${dmg} damage${critString}`);
+            else console.log(` ${attMon.data.name} used ${moveObj.name}`);
+        }
+        return dmg;
+    }
+
+    private applySecondaryEffect(attMon: PokemonExt, defMon: PokemonExt, move: number) {
+        const chance = attMon.moves[move].secChance;
+        if( getRandomByte() < Math.floor(chance*255) ) {
+            // TODO Status effects
+            const status = attMon.moves[move].status as string;
+            if(this.logOutput && status!='') {
+                console.log(`   ${attMon.moves[move].name} applied ${status}.`);
             }
-            return 200;
 
-        } else {
-            if(this.logOutput) {
-               console.log(` ${acc} missed ${moveObj.name}.`);
-               //console.log(` ${attMon.data.name} missed ${moveObj.name}.`);
+            // Stat boosts/drops
+            const stat = attMon.moves[move].stat;
+            const stageMod = attMon.moves[move].statStage;
+            if(stageMod < 0) defMon.applyStatModifier(stat, stageMod);
+            if(stageMod > 0) attMon.applyStatModifier(stat, stageMod);
+
+            if(this.logOutput && stageMod <0) {
+                console.log(`   ${attMon.moves[move].name} lowered enemy ${stat}.`);
+                console.log(defMon.data.stats);
+                console.log(defMon.coreStatStage);
+            }
+            if(stageMod > 0 && this.logOutput) {
+                console.log(attMon.data.stats);
+                console.log(attMon.coreStatStage);
             }
 
-            return 0;
-        };
-
-        return -1;
+        }
     }
 }

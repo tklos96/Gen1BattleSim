@@ -1,9 +1,10 @@
 import * as ps from '@smogon/calc';
 import * as psI from '@smogon/calc/dist/data/interface';
 import {PokemonExt} from './pokemonExt';
+import {getRandomInt,getRandomByte} from './random';
 
 
-export class Trainer {
+export abstract class Trainer {
     name: string;
     gen: psI.Generation;
     team: PokemonExt[];
@@ -41,13 +42,16 @@ export class Trainer {
         return this.team[this.currentPokemon];
     }
 
-    chooseMove() : number {
-        return 0;
+    abstract chooseMove(enemy: Trainer) : number;
+
+    // Implemented only for AI Trainers
+    useItem() : boolean {
+        return false;
     }
 }
 
 export class AITrainer extends Trainer {
-    itemName: string;
+    item: string;
     itemNum: number;
     itemNumPerPok: number[]; //per pokemon for Gen 1 enemy trainers
     isAITrainer = true;
@@ -56,13 +60,15 @@ export class AITrainer extends Trainer {
         gen: psI.Generation,
         name: string,
         team: PokemonExt[],
-        itemName?: string,
-        itemNum?: number
+        options: {
+            item?: string,
+            itemNum?: number
+        } = {}
     ) {
         super(gen,name,team);
 
-        this.itemName = itemName || '';
-        this.itemNum = itemNum || 0;
+        this.item = options.item || '';
+        this.itemNum = options.itemNum || 0;
         this.itemNumPerPok = [];
         for(let i=0; i < this.team.length; i++) {
             this.itemNumPerPok.push(this.itemNum);
@@ -71,8 +77,30 @@ export class AITrainer extends Trainer {
 
     reset() {
         super.reset();
+        this.itemNumPerPok = [];
         for(let i=0; i < this.team.length; i++) {
             this.itemNumPerPok.push(this.itemNum);
         }
+    }
+
+    // AI move choice algorithm
+    chooseMove(enemy: Trainer) : number {
+        let choice : number;
+
+        // Choose randomly
+        choice = getRandomInt(this.getActiveMon().moves.length);
+
+        return choice;
+    }
+
+    useItem() : boolean {
+        if(this.itemNumPerPok[this.currentPokemon]>0) {
+            if( getRandomByte() < 64 ) {
+                this.itemNumPerPok[this.currentPokemon]--;
+                return true;
+            }
+        }
+
+        return false;
     }
 }

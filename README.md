@@ -40,6 +40,9 @@ Battle mechanics
 - Multi-turn trapping moves (e.g. Wrap)
 - Two-turn regular moves (e.g. Razor Wind)
 - Two-turn invulnerable moves (e.g. Dig)
+- Recharge moves
+- Flinches
+- Secondary effect on attacking moves
 - Rage
 
 Data

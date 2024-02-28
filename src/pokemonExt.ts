@@ -1,25 +1,25 @@
 import * as ps from '@smogon/calc';
 import * as psI from '@smogon/calc/dist/data/interface';
 
-const STATS = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'] as psI.StatID[];
+const nonHPStats = ['atk', 'def', 'spa', 'spd', 'spe'] as psI.StatID[];
 
 export class PokemonExt {
-    calcData: ps.Pokemon;
+    data: ps.Pokemon;
     moves: ps.Move[];
     coreStatStage: psI.StatsTable;
     accStage: number;
     evaStage: number;
-    crtStage: number;
+    baseCrit: number;
+    highCrit: number;
     badgeBoosts: ps.StatID[];
-    exp: number;
     volStatus: string;
-    invisible: boolean;
+    invulnerable: boolean;
     inTwoTurnMove: boolean;
     moveCarryOver: number;
 
     // Constructor for PokemonExt
     // options field is directly passed to ps.Pokemon
-    // options_custom is for PokemonExt parameters
+    // optionsExt is for PokemonExt parameters
     constructor(
         gen: psI.Generation,
         name: string,
@@ -29,51 +29,75 @@ export class PokemonExt {
             evs?: Partial<psI.StatsTable> & {spc?: number};
             boosts?: Partial<psI.StatsTable> & {spc?: number};
         } = {},
-        options_custom: {
-            exp?: number,
+        optionsExt: {
             moves?: ps.Move[],
             badgeBoosts?: ps.StatID[],
             rawStatsOverride?: psI.StatsTable
         } = {}
     ) {
-        this.calcData = new ps.Pokemon(gen, name, options);
-        this.moves = options_custom.moves || [];
+        this.data = new ps.Pokemon(gen, name, options);
+        this.moves = optionsExt.moves || [];
         this.coreStatStage = {hp:0, atk:0,def:0,spa:0,spd:0,spe:0 };
         this.accStage = 0;
         this.evaStage = 0;
-        this.crtStage = 0;
-        this.badgeBoosts = options_custom.badgeBoosts || [];
-        this.exp = options_custom.exp || 0;
+        this.badgeBoosts = optionsExt.badgeBoosts || [];
         this.volStatus = '';
-        this.invisible = false;
+        this.invulnerable = false;
         this.inTwoTurnMove = false;
         this.moveCarryOver = -1;
 
-        if(options_custom.rawStatsOverride != undefined) {
-            this.calcData.rawStats = options_custom.rawStatsOverride;
+        if(optionsExt.rawStatsOverride != undefined) {
+            this.data.rawStats = optionsExt.rawStatsOverride;
         }
+        this.recalculateStats();
+        this.baseCrit = Math.floor(this.data.species.baseStats['spe']/2 );
+        this.highCrit = Math.min(8*this.baseCrit,255);
+    }
+
+    reset() {
+        this.data.originalCurHP = this.data.rawStats['hp'];
+        this.coreStatStage = {hp:0, atk:0,def:0,spa:0,spd:0,spe:0 };
+        this.accStage = 0;
+        this.evaStage = 0;
+        this.volStatus = '';
+        this.invulnerable = false;
+        this.inTwoTurnMove = false;
+        this.moveCarryOver = -1;
+
         this.recalculateStats();
     }
 
     // Use to recalculate stats (from raw stats with badge boosts applied once)
     recalculateStats() {
-        for(const stat of STATS) {
-            this.calcData.stats[stat] = this.calcData.rawStats[stat];
+        this.data.stats['hp'] = this.data.rawStats['hp'];
+        for(const stat of nonHPStats) {
+            this.data.stats[stat] = this.data.rawStats[stat];
             this.applyBadgeBoost(stat);
         }
     }
 
-    // Get a move
+    // Get a move from its index
     getMove(num: number, crit = false) {
         if(num>=this.moves.length) num = 0;
         this.moves[num].isCrit = crit;
         return this.moves[num];
     }
 
+    // Take damage or heal
+    changeHP(delta: number) {
+        const newHP = Math.max(this.data.originalCurHP + delta, 0);
+        this.data.originalCurHP = Math.min(newHP, this.data.rawStats['hp']);
+    }
+
+    // If the Pokemon is at 0 HP
+    fainted() : boolean {
+        return this.data.originalCurHP == 0;
+    }
+
     // Apply the 12.5% badge boost to specified stat
     private applyBadgeBoost(stat: psI.StatID) {
         if (this.badgeBoosts.includes(stat)) {
-            this.calcData.stats[stat] = Math.floor(1.125 * this.calcData.stats[stat]);
+            this.data.stats[stat] = Math.floor(1.125 * this.data.stats[stat]);
         }
     }
 }

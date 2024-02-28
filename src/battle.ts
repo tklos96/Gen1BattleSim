@@ -1,6 +1,8 @@
-
-
-
+//import * as ps from '@smogon/calc';
+//import {PokemonExt} from './pokemonExt';
+//import {Trainer} from './trainer';
+//
+//
 //export function doBattle(player: Trainer, enemy: Trainer, maxTurns = 100) {
 //    var result {
 //        'battleOutcome':0, //0=win, 1=loss, 2=draw

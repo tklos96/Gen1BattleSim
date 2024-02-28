@@ -7,41 +7,22 @@ export class Trainer {
     name: string;
     gen: psI.Generation;
     team: PokemonExt[];
-    itemName: string;
-    itemNum: number;
-    itemNumPerPok: number[]; //per pokemon for Gen 1 enemy trainers
     currentPokemon: number;
-    isEnemyTrainer = false;
+    isAITrainer = false;
 
     constructor(
         gen: psI.Generation,
         name: string,
-        team: PokemonExt[],
-        itemName?: string,
-        itemNum?: number
+        team: PokemonExt[]
     ) {
         this.name = name;
         this.gen = gen;
         this.team = team;
-        this.itemName = itemName || '';
-        this.itemNum = itemNum || 0;
-        this.itemNumPerPok = [];
 
-        if(this.gen.num==1) {
-            for(let i=0; i < this.team.length; i++) {
-                this.itemNumPerPok.push(this.itemNum);
-            }
-        }
         this.currentPokemon = 0;
     }
 
     reset() {
-        // Can override for enemy and use super.reset()
-        if(this.gen.num==1) {
-            for(let i=0; i < this.team.length; i++) {
-                this.itemNumPerPok.push(this.itemNum);
-            }
-        }
         this.currentPokemon = 0;
         for(let i=0; i < this.team.length; i++) {
             this.team[i].reset();
@@ -62,5 +43,36 @@ export class Trainer {
 
     chooseMove() : number {
         return 0;
+    }
+}
+
+export class AITrainer extends Trainer {
+    itemName: string;
+    itemNum: number;
+    itemNumPerPok: number[]; //per pokemon for Gen 1 enemy trainers
+    isAITrainer = true;
+
+    constructor(
+        gen: psI.Generation,
+        name: string,
+        team: PokemonExt[],
+        itemName?: string,
+        itemNum?: number
+    ) {
+        super(gen,name,team);
+
+        this.itemName = itemName || '';
+        this.itemNum = itemNum || 0;
+        this.itemNumPerPok = [];
+        for(let i=0; i < this.team.length; i++) {
+            this.itemNumPerPok.push(this.itemNum);
+        }
+    }
+
+    reset() {
+        super.reset();
+        for(let i=0; i < this.team.length; i++) {
+            this.itemNumPerPok.push(this.itemNum);
+        }
     }
 }

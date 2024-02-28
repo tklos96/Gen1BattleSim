@@ -10,14 +10,14 @@ export class MoveExt extends ps.Move {
     constructor(
         gen: psI.Generation,
         name: string,
+        optionsExt: {
+            acc?: number;
+            highCritRatio?: boolean;
+        } = {},
         options: Partial<ps.State.Move> & {
             ability?: psI.AbilityName;
             item?: psI.ItemName;
             species?: psI.SpeciesName;
-            } = {},
-        optionsExt: {
-            acc?: number;
-            highCritRatio?: boolean;
         } = {}
   ) {
     super(gen, name, options);

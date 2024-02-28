@@ -92,9 +92,8 @@ export class Battle {
 
     // Do a move, including checking for status, miss, damage, etc
     private executeMove(attacker: Trainer, defender: Trainer, move: number) {
-        if(attacker.isEnemyTrainer) {
+        if(attacker.isAITrainer) {
             // check for item use
-            return;
         }
 
         const attMon = attacker.getActiveMon();

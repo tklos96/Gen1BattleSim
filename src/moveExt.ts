@@ -2,14 +2,14 @@ import * as ps from '@smogon/calc';
 import * as psI from '@smogon/calc/dist/data/interface';
 
 const highCritMoves = ['Crabhammer', 'Slash', 'Karate Chop', 'Razor Leaf'];
-type StatusExt = psI.StatusName | 'con';
+type StatusExt = psI.StatusName | 'con' | '';
 type StatIDExt = psI.StatID | 'acc' | 'eva';
 
 export class MoveExt extends ps.Move {
     acc: number;
     highCritRatio: boolean;
     secChance: number;
-    status: StatusExt | '';
+    status: StatusExt;
     stat: StatIDExt | '';
     statStage: number;
 

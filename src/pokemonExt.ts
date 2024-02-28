@@ -2,10 +2,14 @@ import * as ps from '@smogon/calc';
 import * as psI from '@smogon/calc/dist/data/interface';
 
 import {MoveExt} from './moveExt';
+import {getRandomByte} from './random';
 
 const nonHPStats = ['atk', 'def', 'spa', 'spd', 'spe'] as psI.StatID[];
 type StatIDExt = psI.StatID | 'acc' | 'eva';
 const stageMods = [.25,.28,.33,.4,.5,.66,1,1.5,2,3,4,5,6];
+
+type StatusExt = psI.StatusName | 'con' | '';
+const nonVolStatus = ['par'] as StatusExt[];
 
 export class PokemonExt {
     data: ps.Pokemon;
@@ -60,6 +64,7 @@ export class PokemonExt {
 
     reset() {
         this.data.originalCurHP = this.data.rawStats['hp'];
+        this.data.status = '';
         this.coreStatStage = {hp:0, atk:0,def:0,spa:0,spd:0,spe:0 };
         this.accStage = 0;
         this.evaStage = 0;
@@ -72,15 +77,15 @@ export class PokemonExt {
     }
 
     // Apply a new stat stage modifier
-    applyStatModifier(stat: StatIDExt | '', stage: number) {
-        if(stat=='') return;
+    applyStatModifier(stat: StatIDExt | '', stage: number) : boolean {
+        if(stat=='') return false;
 
         // Do nothing if stat can't be raised/lowered more
         let currentStage: number;
         if(stat=='acc') currentStage = this.accStage;
         else if (stat=='eva') currentStage = this.evaStage;
         else currentStage = this.coreStatStage[stat as psI.StatID];
-        if( (stage >=0 && currentStage >=6) || (stage <=0 && currentStage <= -6)) return;
+        if( (stage >=0 && currentStage >=6) || (stage <=0 && currentStage <= -6)) return false;
 
         // Update the stage modifier and calculate that specific stat
         if(stat=='acc') this.accStage += stage;
@@ -94,6 +99,25 @@ export class PokemonExt {
         // Badge boost all stats
         for(const s of nonHPStats) {
             this.applyBadgeBoost(s);
+        }
+
+        return true;
+    }
+
+    afflictNonVolStatus(status: StatusExt) : boolean {
+        if(!nonVolStatus.includes(this.data.status) ) {
+            this.data.status = status as psI.StatusName;
+            return true;
+        }
+        return false;
+    }
+
+    applyStatusEffectToStats() {
+        if(this.data.hasStatus('par')) {
+            this.data.stats['spe'] = Math.max(1, Math.floor( 0.25 * this.data.stats['spe'] ));
+        }
+        else if(this.data.hasStatus('brn')) {
+            this.data.stats['atk'] = Math.max(1, Math.floor( 0.5 * this.data.stats['atk'] ));
         }
     }
 
@@ -118,7 +142,9 @@ export class PokemonExt {
 
     // Test if a move will succeed or be stopped by status
     attemptMove(num: number) : number {
-        if(this.data.hasStatus('par')) return 0;
+        if(this.data.hasStatus('par' as psI.StatusName)) {
+            if (getRandomByte() < 64) return 0;
+        }
         return 1;
     }
 
@@ -140,13 +166,13 @@ export class PokemonExt {
 
     private calcRawStat(stat: psI.StatID) {
         const mult = stageMods[6+this.coreStatStage[stat]];
-        this.data.stats[stat] = Math.floor(mult * this.data.rawStats[stat]);
+        this.data.stats[stat] = Math.min(999, Math.floor(mult * this.data.rawStats[stat]));
     }
 
     // Apply the 12.5% badge boost to specified stat
     private applyBadgeBoost(stat: psI.StatID) {
         if (this.badgeBoosts.includes(stat)) {
-            this.data.stats[stat] = Math.floor(1.125 * this.data.stats[stat]);
+            this.data.stats[stat] = Math.min(999, Math.floor(1.125 * this.data.stats[stat]));
         }
     }
 }

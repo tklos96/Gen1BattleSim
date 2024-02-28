@@ -10,16 +10,8 @@ const numToLog = 10; // Write full log of the first n battles
 
 // Define Player Move Selection
 class PlayerTrainer extends Trainer {
-    usedSandAttack = false;
-
-    reset() {
-        super.reset();
-        this.usedSandAttack = false;
-    }
-    
     chooseMove(enemy: Trainer) {
-        if(!this.usedSandAttack) {
-            this.usedSandAttack = true;
+        if(enemy.getActiveMon().accStage >= 0) {
             return 3;
         }
         if(this.getActiveMon().coreStatStage['atk'] < 0) return 0;
@@ -37,7 +29,7 @@ const p1 = new PokemonExt(gen,
                           {badgeBoosts:['atk'],
                            moves:[new MoveExt(gen,'Bubble Beam'),
                                   new MoveExt(gen,'Water Gun'),
-                                  new MoveExt(gen,'Body Slam',{secChance:0.3,status:'par'}),
+                                  new MoveExt(gen,'Body Slam',{secChance:.3,status:'par'}),
                                   new MoveExt(gen,'Sand Attack',{secChance:1,stat:'acc',statStage:-1})],
                            rawStatsOverride:{hp:110,atk:48,def:46,spa:70,spd:70,spe:48 }
                            }
@@ -61,8 +53,10 @@ console.log();
 console.log(`Done with simulations.`);
 console.log(`Outcomes (wins, losses, ties): `);
 console.log(b.outcomes);
-console.log(`Turn Ended Histogram: `);
-console.log(b.turnEnded);
+console.log(`Turns At Win: `);
+console.log(b.turnAtWin);
+console.log(`Turns At Loss: `);
+console.log(b.turnAtLoss);
 const CoS = 100 * b.outcomes[0] / (b.outcomes[0]+b.outcomes[1]+b.outcomes[2]);
 console.log(`Chance of success: ${CoS}%`);
 

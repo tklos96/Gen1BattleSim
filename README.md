@@ -28,6 +28,7 @@ Battle mechanics
 ----------------
 - Stat-boosting moves
 - Status moves in general
+- Check immunities when using moves
 - Bide
 - Reflect
 - Confusion

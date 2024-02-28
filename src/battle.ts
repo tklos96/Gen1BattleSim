@@ -1,9 +1,13 @@
 import * as ps from '@smogon/calc';
+import * as psI from '@smogon/calc/dist/data/interface';
 import {PokemonExt} from './pokemonExt';
 import {Trainer} from './trainer';
 import {getRandomByte, getRandomOfList} from './random';
 
-const evaModifiers = [1,.66,.5,.4,.33,.28,.25]
+const evaModifiers = [1,.66,.5,.4,.33,.28,.25];
+type StatusExt = psI.StatusName | 'con' | '';
+//const nonVolStatus = ['slp', 'psn', 'brn', 'frz', 'par', 'tox'] as StatusExt[];
+const nonVolStatus = ['par'] as StatusExt[];
 
 export class Battle {
     player: Trainer;
@@ -11,7 +15,9 @@ export class Battle {
     logOutput = false;
     battleNum: number;
     outcomes: number[];
-    turnEnded: number[];
+    turnEnded: number [];
+    turnAtWin: number[];
+    turnAtLoss: number[];
 
     constructor(player: Trainer,
                 enemy: Trainer
@@ -21,6 +27,8 @@ export class Battle {
         this.battleNum = 0;
         this.outcomes = [0,0,0];
         this.turnEnded = [];
+        this.turnAtWin = [];
+        this.turnAtLoss = [];
     }
 
     doBattleFromScratch(logOutput = false) {
@@ -42,9 +50,16 @@ export class Battle {
 
         // Log result
         if( turn==200 ) this.outcomes[2]++;
-        else if( this.player.defeated() ) this.outcomes[1]++;
-        else this.outcomes[0]++;
-        // Update turnEnded histogram
+        else if( this.player.defeated() ) {
+            this.outcomes[1]++;
+            while( turn >= this.turnAtLoss.length) this.turnAtLoss.push(0);
+            this.turnAtLoss[turn]++;
+        }
+        else {
+            this.outcomes[0]++;
+            while( turn >= this.turnAtWin.length) this.turnAtWin.push(0);
+            this.turnAtWin[turn]++;
+        }
         while( turn >= this.turnEnded.length ) this.turnEnded.push(0);
         this.turnEnded[ turn ]++;
 
@@ -115,6 +130,7 @@ export class Battle {
                 const dmg = this.getDamageRoll(attMon, defMon, move);
                 defMon.takeDmg(dmg);
 
+                // TODO check for immunities e.g. TWave on Ground types
                 this.applySecondaryEffect(attMon, defMon, move);
             } else {
                 if(this.logOutput) {
@@ -125,6 +141,9 @@ export class Battle {
         }
         else if (code==0) {
             //failed due to status
+            if(this.logOutput) {
+                console.log(` ${attMon.data.name} can't move due to status.`);
+            }
         }
         else {
             //hit self in confusion
@@ -165,29 +184,39 @@ export class Battle {
 
     private applySecondaryEffect(attMon: PokemonExt, defMon: PokemonExt, move: number) {
         const chance = attMon.moves[move].secChance;
+        let didSomething = false;
         if( getRandomByte() < Math.floor(chance*255) ) {
-            // TODO Status effects
-            const status = attMon.moves[move].status as string;
-            if(this.logOutput && status!='') {
-                console.log(`   ${attMon.moves[move].name} applied ${status}.`);
+            // Status effect to apply
+            const status = attMon.moves[move].status;
+
+            // Non-volatile status effects
+            if(nonVolStatus.includes(status)) {
+                const moveObj = attMon.moves[move];
+                if( moveObj.category == 'Status' || !defMon.data.hasType(moveObj.type)) {
+                    didSomething = defMon.afflictNonVolStatus(status);
+
+                    if(didSomething && this.logOutput) console.log(`   ${attMon.moves[move].name} applied ${status}.`);
+                }
             }
 
             // Stat boosts/drops
             const stat = attMon.moves[move].stat;
             const stageMod = attMon.moves[move].statStage;
-            if(stageMod < 0) defMon.applyStatModifier(stat, stageMod);
-            if(stageMod > 0) attMon.applyStatModifier(stat, stageMod);
+            if(stageMod < 0) didSomething = defMon.applyStatModifier(stat, stageMod);
+            if(stageMod > 0) didSomething = attMon.applyStatModifier(stat, stageMod);
 
-            if(this.logOutput && stageMod <0) {
-                console.log(`   ${attMon.moves[move].name} lowered enemy ${stat}.`);
-                console.log(defMon.data.stats);
-                console.log(defMon.coreStatStage);
-            }
-            if(stageMod > 0 && this.logOutput) {
-                console.log(attMon.data.stats);
-                console.log(attMon.coreStatStage);
+            if(this.logOutput && stageMod != 0) {
+                console.log(`   ${attMon.moves[move].name} affected ${stat}.`);
             }
 
+        }
+
+        if(didSomething) defMon.applyStatusEffectToStats();
+        if(didSomething && this.logOutput) {
+            console.log(defMon.data.stats);
+            console.log(defMon.coreStatStage);
+            console.log(attMon.data.stats);
+            console.log(attMon.coreStatStage);
         }
     }
 }

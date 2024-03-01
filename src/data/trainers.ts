@@ -6,7 +6,7 @@ import {PokemonExt} from '../pokemonExt';
 import {MoveExt} from '../moveExt';
 
 const gen = ps.Generations.get(1);
-const defaultIVs = {atk:18, def:16, spa:16, spd:16, spe:16} as Partial<psI.StatsTable>;
+export const defaultIVs = {atk:18, def:16, spa:16, spd:16, spe:16} as Partial<psI.StatsTable>;
 
 export namespace TrainerData {
     export const LabRival = new AITrainer(gen, 'Rival',

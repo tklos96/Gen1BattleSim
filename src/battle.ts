@@ -148,7 +148,7 @@ export class Battle {
         const defMon = defender.getActiveMon();
 
         // Check if the move will succeed, based on status
-        const code = attMon.attemptMove(move);
+        const code = attMon.attemptMove();
         if(code > 0) {
             const hit = this.getAccRoll(attMon, defMon, move);
             if(hit) {

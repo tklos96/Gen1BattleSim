@@ -1,0 +1,324 @@
+
+> gen1battlesim@1.0.0 start
+> node dist/index.js
+
+----- Battle: 0 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu used Mega Punch. 25 dmg.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 85 HP
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Surge used item.
+  Vaporeon used Body Slam. 27 dmg. Applied par.
+    Vaporeon: 85 HP
+    Raichu: 49 HP, +1 spe, -1 acc, [par]
+
+Turn 2
+  Vaporeon used Body Slam. 25 dmg.
+  Raichu can't move due to status.
+    Vaporeon: 85 HP
+    Raichu: 24 HP, +1 spe, -1 acc, [par]
+
+Turn 3
+  Vaporeon used Body Slam. 25 dmg.
+    Vaporeon: 85 HP
+    Raichu: 0 HP, +1 spe, -1 acc, [par]
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 1 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Surge used item.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 110 HP
+    Raichu: 76 HP, +1 spe, -1 acc
+
+Turn 1
+  Raichu missed Mega Kick.
+  Vaporeon used Body Slam. 26 dmg. Applied par.
+    Vaporeon: 110 HP
+    Raichu: 50 HP, +1 spe, -1 acc, [par]
+
+Turn 2
+  Vaporeon used Body Slam. 25 dmg.
+  Raichu missed Thunderbolt.
+    Vaporeon: 110 HP
+    Raichu: 25 HP, +1 spe, -1 acc, [par]
+
+Turn 3
+  Vaporeon used Body Slam. 27 dmg.
+    Vaporeon: 110 HP
+    Raichu: 0 HP, +1 spe, -1 acc, [par]
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 2 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu used Mega Punch. 26 dmg.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 84 HP
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Raichu used Growl.
+  Vaporeon used Body Slam. 28 dmg.
+    Vaporeon: 84 HP
+    Raichu: 48 HP, -1 acc
+
+Turn 2
+  Surge used item.
+  Vaporeon used Body Slam. 25 dmg. Applied par.
+    Vaporeon: 84 HP
+    Raichu: 23 HP, +1 spe, -1 acc, [par]
+
+Turn 3
+  Vaporeon used Body Slam. 24 dmg.
+    Vaporeon: 84 HP
+    Raichu: 0 HP, +1 spe, -1 acc, [par]
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 3 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu missed Mega Kick.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 110 HP
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Raichu missed Mega Kick.
+  Vaporeon used Body Slam. 28 dmg.
+    Vaporeon: 110 HP
+    Raichu: 48 HP, -1 acc
+
+Turn 2
+  Surge used item.
+  Vaporeon used Body Slam. 27 dmg.
+    Vaporeon: 110 HP
+    Raichu: 21 HP, +1 spe, -1 acc
+
+Turn 3
+  Raichu missed Mega Punch.
+  Vaporeon used Body Slam. 26 dmg.
+    Vaporeon: 110 HP
+    Raichu: 0 HP, +1 spe, -1 acc
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 4 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Surge used item.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 110 HP
+    Raichu: 76 HP, +1 spe, -1 acc
+
+Turn 1
+  Raichu used Mega Kick. 41 dmg.
+  Vaporeon used Body Slam. 25 dmg.
+    Vaporeon: 69 HP
+    Raichu: 51 HP, +1 spe, -1 acc
+
+Turn 2
+  Raichu used Thunderbolt. 65 dmg.
+  Vaporeon used Body Slam. 27 dmg.
+    Vaporeon: 4 HP
+    Raichu: 24 HP, +1 spe, -1 acc
+
+Turn 3
+  Raichu used Growl. Affected atk.
+  Vaporeon used Body Slam. 16 dmg.
+    Vaporeon: 4 HP, -1 atk
+    Raichu: 8 HP, +1 spe, -1 acc
+
+Turn 4
+  Raichu used Mega Punch. 26 dmg.
+    Vaporeon: 0 HP, -1 atk
+    Raichu: 8 HP, +1 spe, -1 acc
+
+LOSS: Player lost to enemy Pokemon: Raichu
+
+--------------------------
+----- Battle: 5 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu used Growl. Affected atk.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 110 HP, -1 atk
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Raichu missed Mega Kick.
+  Vaporeon used Bubble Beam. Critial hit! 52 dmg.
+    Vaporeon: 110 HP, -1 atk
+    Raichu: 24 HP, -1 acc
+
+Turn 2
+  Surge used item.
+  Vaporeon used Bubble Beam. Critial hit! 47 dmg.
+    Vaporeon: 110 HP, -1 atk
+    Raichu: 0 HP, +1 spe, -1 acc
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 6 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu used Mega Punch. 25 dmg.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 85 HP
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Raichu used Thunderbolt. 59 dmg.
+  Vaporeon used Body Slam. 24 dmg.
+    Vaporeon: 26 HP
+    Raichu: 52 HP, -1 acc
+
+Turn 2
+  Surge used item.
+  Vaporeon used Body Slam. 24 dmg.
+    Vaporeon: 26 HP
+    Raichu: 28 HP, +1 spe, -1 acc
+
+Turn 3
+  Raichu used Growl. Affected atk.
+  Vaporeon used Body Slam. 18 dmg. Applied par.
+    Vaporeon: 26 HP, -1 atk
+    Raichu: 10 HP, +1 spe, -1 acc, [par]
+
+Turn 4
+  Vaporeon used Bubble Beam. 28 dmg.
+    Vaporeon: 26 HP, -1 atk
+    Raichu: 0 HP, +1 spe, -1 acc, [par]
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 7 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu used Growl. Affected atk.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 110 HP, -1 atk
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Raichu used Mega Punch. 26 dmg.
+  Vaporeon used Bubble Beam. 29 dmg.
+    Vaporeon: 84 HP, -1 atk
+    Raichu: 47 HP, -1 acc
+
+Turn 2
+  Raichu used Mega Punch. Critial hit! 51 dmg.
+  Vaporeon used Bubble Beam. 28 dmg.
+    Vaporeon: 33 HP, -1 atk
+    Raichu: 19 HP, -1 acc
+
+Turn 3
+  Raichu used Growl. Affected atk.
+  Vaporeon used Bubble Beam. 25 dmg.
+    Vaporeon: 33 HP, -2 atk
+    Raichu: 0 HP, -1 acc
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 8 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Raichu used Thunderbolt. 60 dmg.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 50 HP
+    Raichu: 76 HP, -1 acc
+
+Turn 1
+  Raichu used Growl. Affected atk.
+  Vaporeon used Body Slam. Critial hit! 44 dmg.
+    Vaporeon: 50 HP, -1 atk
+    Raichu: 32 HP, -1 acc
+
+Turn 2
+  Surge used item.
+  Vaporeon used Bubble Beam. 25 dmg.
+    Vaporeon: 50 HP, -1 atk
+    Raichu: 7 HP, +1 spe, -1 acc
+
+Turn 3
+  Raichu missed Mega Kick.
+  Vaporeon used Bubble Beam. 29 dmg.
+    Vaporeon: 50 HP, -1 atk
+    Raichu: 0 HP, +1 spe, -1 acc
+
+WIN: Player won!
+
+--------------------------
+----- Battle: 9 ----------
+
+Player sent in Vaporeon: 110 HP
+Surge sent in Raichu: 76 HP
+Turn 0
+  Surge used item.
+  Vaporeon used Sand Attack. Affected acc.
+    Vaporeon: 110 HP
+    Raichu: 76 HP, +1 spe, -1 acc
+
+Turn 1
+  Raichu used Thunderbolt. 64 dmg.
+  Vaporeon used Body Slam. Critial hit! 41 dmg.
+    Vaporeon: 46 HP
+    Raichu: 35 HP, +1 spe, -1 acc
+
+Turn 2
+  Raichu missed Mega Kick.
+  Vaporeon used Body Slam. Critial hit! 41 dmg.
+    Vaporeon: 46 HP
+    Raichu: 0 HP, +1 spe, -1 acc
+
+WIN: Player won!
+
+--------------------------
+Done with simulation: 10000 / 100000
+Done with simulation: 20000 / 100000
+Done with simulation: 30000 / 100000
+Done with simulation: 40000 / 100000
+Done with simulation: 50000 / 100000
+Done with simulation: 60000 / 100000
+Done with simulation: 70000 / 100000
+Done with simulation: 80000 / 100000
+Done with simulation: 90000 / 100000
+Done with simulation: 100000 / 100000
+
+Chance of success: 0.75649
+Avg turns per win: 4.151806368887891
+Avg turns per loss: 3.122705433041764
+Expected turns to victory: 5.156988195481764

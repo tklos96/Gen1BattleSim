@@ -170,7 +170,7 @@ export class PokemonExt {
     }
 
     // Test if a move will succeed or be stopped by status
-    attemptMove(num: number) : number {
+    attemptMove() : number {
         if(this.data.hasStatus('par' as psI.StatusName)) {
             if (getRandomByte() < 64) return 0;
         }

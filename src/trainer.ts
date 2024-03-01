@@ -1,4 +1,3 @@
-import * as ps from '@smogon/calc';
 import * as psI from '@smogon/calc/dist/data/interface';
 import {PokemonExt} from './pokemonExt';
 import {getRandomInt,getRandomByte} from './random';
@@ -85,7 +84,7 @@ export class AITrainer extends Trainer {
 
     // AI move choice algorithm
     chooseMove(enemy: Trainer) : number {
-        let choice : number;
+        let choice = 0;
 
         // Choose randomly
         choice = getRandomInt(this.getActiveMon().moves.length);

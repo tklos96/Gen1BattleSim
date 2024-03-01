@@ -1,7 +1,7 @@
 import * as ps from '@smogon/calc';
 import {PokemonExt} from './pokemonExt';
 import {Trainer} from './trainer';
-import {TrainerData} from './data/trainers';
+import * as TrainerData from './data/trainers';
 import {Battle} from './battle';
 import {MoveExt} from './moveExt';
 

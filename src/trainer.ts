@@ -97,6 +97,11 @@ export class AITrainer extends Trainer {
         if(this.itemNumPerPok[this.currentPokemon]>0) {
             if( getRandomByte() < 64 ) {
                 this.itemNumPerPok[this.currentPokemon]--;
+
+                if(this.item == 'XSpeed') {
+                    this.team[this.currentPokemon].applyStatModifier('spe',1);
+                }
+
                 return true;
             }
         }

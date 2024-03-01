@@ -60,7 +60,7 @@ const enemy = TrainerData.LtSurge;
 // Simulate Battles
 const b = new Battle(player, enemy);
 for(let battleNum=0; battleNum < numToSim; ++battleNum) {
-    b.doBattleFromScratch(battleNum < numToLog);
+    b.doBattleFromScratch();
 }
 
 

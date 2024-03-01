@@ -12,12 +12,12 @@ const nonVolStatus = ['par'] as StatusExt[];
 export class Battle {
     player: Trainer;
     enemy: Trainer;
-    logOutput = false;
     battleNum: number;
     outcomes: number[];
     turnEnded: number [];
     turnAtWin: number[];
     turnAtLoss: number[];
+    logStr: string;
 
     constructor(player: Trainer,
                 enemy: Trainer
@@ -29,55 +29,80 @@ export class Battle {
         this.turnEnded = [];
         this.turnAtWin = [];
         this.turnAtLoss = [];
+        this.logStr = '';
     }
 
-    doBattleFromScratch(logOutput = false) {
-        this.logOutput = logOutput;
+    calcAverageTurns() : number[] {
+        let totalSum = 0;
+        let totalDenom = 0;
+        for(let i=0; i < this.turnEnded.length; i++) {
+            totalSum += (i+1)*this.turnEnded[i];
+            totalDenom += this.turnEnded[i];
+        }
+        const turnsTotal = totalSum/totalDenom;
+        let winSum = 0;
+        let winDenom = 0;
+        for(let i=0; i < this.turnAtWin.length; i++) {
+            winSum += (i+1)*this.turnAtWin[i];
+            winDenom += this.turnAtWin[i];
+        }
+        const turnsPerWin = winSum/winDenom;
+        let lossSum = 0;
+        let lossDenom = 0;
+        for(let i=0; i < this.turnAtLoss.length; i++) {
+            lossSum += (i+1)*this.turnAtLoss[i];
+            lossDenom += this.turnAtLoss[i];
+        }
+        const turnsPerLoss = lossSum/lossDenom;
+        return [turnsTotal, turnsPerWin, turnsPerLoss];
+    }
+
+    doBattleFromScratch() : string {
         this.player.reset();
         this.enemy.reset();
-
-        if(this.logOutput) {
-            console.log(`\n----- Battle: ${this.battleNum} ----------`);
-            console.log(`Starting battle between ${this.player.name} and ${this.enemy.name}`);
+        
+        this.logStr = '';
+        this.logStr += `----- Battle: ${this.battleNum} ----------\n\n`;
+        for( const  t of [this.player, this.enemy]) {
+            this.logStr += `${t.name} sent in ` + t.getActiveMon().report() + '\n';
         }
 
         // Turn loop. Max 200 turns.
         let turn = 0;
         for(turn=0; turn < 200; turn++) {
+            this.logStr += `Turn ${turn}\n`;
+
             this.doTurn();
+
+            this.logStr += '\n';
+
             if( this.player.defeated() || this.enemy.defeated() ) break;
         }
 
         // Log result
-        if( turn==200 ) this.outcomes[2]++;
+        while( turn >= this.turnEnded.length ) this.turnEnded.push(0);
+        this.turnEnded[ turn ]++;
+        if( turn==200 ) {
+            this.outcomes[2]++;
+            this.logStr += "TIE: Battle went to turn 200\n";
+        }
         else if( this.player.defeated() ) {
             this.outcomes[1]++;
             while( turn >= this.turnAtLoss.length) this.turnAtLoss.push(0);
             this.turnAtLoss[turn]++;
+            this.logStr += `LOSS: Player lost to enemy Pokemon: ${this.enemy.getActiveMon().data.name}\n`;
         }
         else {
             this.outcomes[0]++;
             while( turn >= this.turnAtWin.length) this.turnAtWin.push(0);
             this.turnAtWin[turn]++;
-        }
-        while( turn >= this.turnEnded.length ) this.turnEnded.push(0);
-        this.turnEnded[ turn ]++;
-
-        if(this.logOutput) {
-            if( turn==200 ) {
-                console.log("TIE: Battle went to turn 200");
-            }
-            else if( this.player.defeated() ) {
-                console.log(`LOSS: Player lost to enemy Pokemon: ${this.enemy.getActiveMon().data.name}`);
-                console.log(`Battle ended on Turn ${turn}`);
-            }
-            else {
-                console.log(`WIN: Player won!`);
-                console.log(`Battle ended on Turn ${turn}`);
-            }
+            this.logStr += `WIN: Player won!\n`;
         }
 
         this.battleNum++;
+
+        this.logStr += `\n--------------------------`;
+        return this.logStr;
     }
 
     private doTurn() {
@@ -102,8 +127,9 @@ export class Battle {
         this.executeMove(t1,t2,m1);
         if(!t2.getActiveMon().fainted()) this.executeMove(t2,t1,m2);
 
-        if(this.logOutput) {
-            console.log(`  End of turn. Player HP: ${this.player.getActiveMon().data.curHP()}, Enemy HP: ${this.enemy.getActiveMon().data.curHP()}`);
+        // Report on Pokemon
+        for(const t of [this.player,this.enemy]) {
+            this.logStr += `    ${t.getActiveMon().report()}\n`;
         }
 
         // If enemy pokemon is defeated, switch to next pokemon
@@ -112,11 +138,10 @@ export class Battle {
 
     // Do a move, including checking for status, miss, damage, etc
     private executeMove(attacker: Trainer, defender: Trainer, move: number) {
-        if( attacker.useItem() ) {
-            if(this.logOutput) {
-                console.log(` ${attacker.name} used item.`);
-                return;
-            }
+        const usedItem = attacker.useItem();
+        if(usedItem) {
+            this.logStr += `  ${attacker.name} used item.\n`;
+            return;
         }
 
         const attMon = attacker.getActiveMon();
@@ -133,22 +158,19 @@ export class Battle {
                 // TODO check for immunities e.g. TWave on Ground types
                 this.applySecondaryEffect(attMon, defMon, move);
             } else {
-                if(this.logOutput) {
-                    console.log(` ${attMon.data.name} missed ${attMon.moves[move].name}.`);
-                }
+                this.logStr += `  ${attMon.data.name} missed ${attMon.moves[move].name}.`;
             }
 
         }
         else if (code==0) {
             //failed due to status
-            if(this.logOutput) {
-                console.log(` ${attMon.data.name} can't move due to status.`);
-            }
+            this.logStr += `  ${attMon.data.name} can't move due to status.`;
         }
         else {
             //hit self in confusion
             attMon.takeDmg(200);
         }
+        this.logStr += '\n';
     }
 
     private getAccRoll(attMon: PokemonExt, defMon: PokemonExt, move: number) : boolean {
@@ -173,12 +195,9 @@ export class Battle {
             dmg = getRandomOfList(result.damage as number[]);
         }
 
-
-        if(this.logOutput) {
-            const critString = moveObj.isCrit ? '. Critical hit!' : '.';
-            if(dmg>0) console.log(` ${attMon.data.name} used ${moveObj.name} for ${dmg} damage${critString}`);
-            else console.log(` ${attMon.data.name} used ${moveObj.name}`);
-        }
+        this.logStr += `  ${attMon.data.name} used ${moveObj.name}.`;
+        if(dmg > 0 && moveObj.isCrit) this.logStr += ` Critial hit!`;
+        if(dmg > 0) this.logStr += ` ${dmg} dmg.`;
         return dmg;
     }
 
@@ -195,7 +214,7 @@ export class Battle {
                 if( moveObj.category == 'Status' || !defMon.data.hasType(moveObj.type)) {
                     didSomething = defMon.afflictNonVolStatus(status);
 
-                    if(didSomething && this.logOutput) console.log(`   ${attMon.moves[move].name} applied ${status}.`);
+                    if(didSomething) this.logStr += ` Applied ${status}.`;
                 }
             }
 
@@ -205,18 +224,10 @@ export class Battle {
             if(stageMod < 0) didSomething = defMon.applyStatModifier(stat, stageMod);
             if(stageMod > 0) didSomething = attMon.applyStatModifier(stat, stageMod);
 
-            if(this.logOutput && stageMod != 0) {
-                console.log(`   ${attMon.moves[move].name} affected ${stat}.`);
-            }
+            if(stageMod != 0) this.logStr += ` Affected ${stat}.`;
 
         }
 
         if(didSomething) defMon.applyStatusEffectToStats();
-        if(didSomething && this.logOutput) {
-            console.log(defMon.data.stats);
-            console.log(defMon.coreStatStage);
-            console.log(attMon.data.stats);
-            console.log(attMon.coreStatStage);
-        }
     }
 }

@@ -76,6 +76,35 @@ export class PokemonExt {
         this.recalculateStats();
     }
 
+    report (infoLevel = 0) : string {
+        let outStr = `${this.data.name}: ${this.data.curHP()} HP`;
+        if(infoLevel > 0) {
+            for(const s of nonHPStats) { 
+                outStr += `, ${this.data.stats[s]} ${s}`;
+            }
+        } else {
+            for(const s of nonHPStats) {
+                if( this.coreStatStage[s] != 0) {
+                    outStr += ', ';
+                    outStr += (this.coreStatStage[s]>0) ? '+' : '';
+                    outStr += `${this.coreStatStage[s]} ${s}`;
+                }
+            }
+            if( this.accStage != 0) {
+                outStr += ', ';
+                outStr += (this.accStage>0) ? '+' : '';
+                outStr += `${this.accStage} acc`;
+            }
+            if( this.evaStage != 0) {
+                outStr += ', ';
+                outStr += (this.evaStage>0) ? '+' : '';
+                outStr += `${this.evaStage} eva`;
+            }
+        }
+        if(this.data.status != '') outStr += `, [${this.data.status}]`;
+        return outStr;
+    }
+
     // Apply a new stat stage modifier
     applyStatModifier(stat: StatIDExt | '', stage: number) : boolean {
         if(stat=='') return false;
